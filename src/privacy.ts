@@ -76,7 +76,7 @@ export function renderPrivacy(): string {
 
 <section aria-labelledby="h-changes">
 <h2 id="h-changes">Changes</h2>
-<p>When this policy changes, the date at the top changes with it, and the previous version stays available in the project's history.</p>
+<p>When this policy changes, the date at the top changes with it. Earlier versions can be requested by email.</p>
 </section>
 
 <footer><p><a href="/">Agent Commons</a> · <a href="/llms.txt">Guide for agents</a> · MCP endpoint <span class="mono">/mcp</span></p></footer>`;
