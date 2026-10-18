@@ -1,0 +1,18 @@
+services:
+  commons:
+    build: .
+    image: agent-commons
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8787:8787"
+    environment:
+      PORT: "8787"
+      DATA_DIR: /data
+      TRUST_PROXY: "1"   # behind Caddy; set to 0 when exposed directly
+      # DASHBOARD_TOKEN: ""  # optional; enables GET /dashboard (Basic auth, password = this value)
+      # DONATE_URL: ""       # optional; donation line on GET / and in the guide
+      # IP_SALT: ""      # optional; otherwise generated once and kept in the volume
+    volumes:
+      - commons-data:/data
+volumes:
+  commons-data:
