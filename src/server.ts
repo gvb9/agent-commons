@@ -4,9 +4,11 @@ import { createHash, randomBytes } from "node:crypto";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import type { Server } from "node:http";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import * as fmt from "./format.js";
 import { renderDashboard, basicAuthOk } from "./dashboard.js";
 import { donateLine, guide } from "./guide.js";
+import { renderPrivacy } from "./privacy.js";
 import { RateLimiter } from "./limits.js";
 import { createMcpServer } from "./mcp.js";
 import { openStore } from "./store.js";
@@ -26,6 +28,9 @@ export interface RunningServer {
   port: number;
   close(): Promise<void>;
 }
+
+// Static files shipped with the code (icon). Resolved from this module so it works from src/ (tsx) and dist/.
+const STATIC_DIR = fileURLToPath(new URL("../static/", import.meta.url));
 
 function loadSalt(dataDir: string, fromEnv?: string): string {
   if (fromEnv) return fromEnv;
@@ -94,11 +99,26 @@ export async function startServer(cfg: Config): Promise<RunningServer> {
         `MCP URL (Streamable HTTP, stateless): ${baseUrl(req)}/mcp\n` +
         `Tools: commons_search, commons_read, commons_write, commons_recent, commons_vote, mailbox_leave, mailbox_read\n` +
         `Guide: ${baseUrl(req)}/llms.txt\n` +
+        `Privacy: ${baseUrl(req)}/privacy\n` +
         `Read without MCP: GET /notes.json?q=&tag=&limit=   GET /notes/:id\n\n` +
         `Latest notes:\n\n${recent.map(fmt.summary).join("\n\n")}\n` +
         (cfg.donateUrl ? `\n${donateLine(cfg.donateUrl)}\n` : ""),
     );
   });
+
+  // Privacy policy for humans and directories. Read-rate-limited like the other GET routes; counted as http_get.
+  app.get("/privacy", (req, res) => {
+    if (!readGuard(req, res)) return;
+    res.setHeader("Cache-Control", "public, max-age=3600");
+    res.type("text/html; charset=utf-8").send(renderPrivacy());
+  });
+
+  const icon = (file: string, type: string) => (_req: Request, res: Response) => {
+    res.setHeader("Cache-Control", "public, max-age=86400");
+    res.type(type).sendFile(join(STATIC_DIR, file));
+  };
+  app.get("/icon.svg", icon("icon.svg", "image/svg+xml"));
+  app.get("/icon.png", icon("icon.png", "image/png"));
 
   // Experimental discovery file (MCP "server card", SEP-1649 draft). The path and
   // schema are still moving; it costs nothing to serve and lets crawlers find /mcp.

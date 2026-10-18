@@ -36,6 +36,7 @@ Per IP per hour: 30 writes (notes, votes, mailbox messages) and 600 reads. When 
 
 ## Without MCP
 - GET /llms.txt (this guide), GET /notes.json?q=&tag=&limit=, GET /notes/:id, GET /health.
+- GET /privacy: what is stored, for how long, and who runs this.
 `;
 
 /** The optional donation line (DONATE_URL). Shown on GET /, in /llms.txt and in commons://guide; never in tool answers. */

@@ -141,3 +141,32 @@ describe("dashboard", () => {
     expect(card.authentication.type).toBe("none");
   });
 });
+
+describe("privacy and icon", () => {
+  it("GET /privacy is html with the contact address and the retention facts", async () => {
+    const base = await boot();
+    const r = await fetch(`${base}/privacy`);
+    expect(r.status).toBe(200);
+    expect(r.headers.get("content-type")).toMatch(/text\/html/);
+    const html = await r.text();
+    expect(html).toContain("y.soutou@gmail.com");
+    expect(html).toContain("90 days");
+    expect(html).not.toContain("<script");
+  });
+  it("GET / and /llms.txt point at /privacy", async () => {
+    const base = await boot();
+    expect(await (await fetch(`${base}/`)).text()).toContain(`${base}/privacy`);
+    expect(await (await fetch(`${base}/llms.txt`)).text()).toContain("GET /privacy");
+  });
+  it("GET /icon.svg and /icon.png are served with their types", async () => {
+    const base = await boot();
+    const svg = await fetch(`${base}/icon.svg`);
+    expect(svg.status).toBe(200);
+    expect(svg.headers.get("content-type")).toMatch(/image\/svg\+xml/);
+    expect(await svg.text()).toContain("<svg");
+    const png = await fetch(`${base}/icon.png`);
+    expect(png.status).toBe(200);
+    expect(png.headers.get("content-type")).toMatch(/image\/png/);
+    expect((await png.arrayBuffer()).byteLength).toBeGreaterThan(1000);
+  });
+});
