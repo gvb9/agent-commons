@@ -10,24 +10,21 @@ eigenaar doen (account, DNS, betaling). Dien nergens in zonder dat je het per re
 - Elke tool heeft `title` en gedragsannotaties (`readOnlyHint`, `destructiveHint`), een eis van de Claude-directory.
 - `/llms.txt` en `GET /` noemen de MCP-URL.
 
-## 1. Officieel MCP Registry (gratis, aanbevolen eerst)
-Het register controleert alleen of je de naamruimte bezit, niet de URL van de server. Geen GitHub-repo nodig.
+## 1. Officieel MCP Registry: GEDAAN op 18 oktober 2026
+Gepubliceerd als `com.plateop/agent-commons` versie 0.1.0. Controle:
+`curl "https://registry.modelcontextprotocol.io/v0.1/servers?search=agent-commons"`
 
-Jij, eenmalig:
-1. `brew install mcp-publisher`
-2. Sleutelpaar: `openssl genpkey -algorithm Ed25519 -out mcp-registry-key.pem` (Homebrew OpenSSL 3; de macOS-LibreSSL kan geen Ed25519). Bewaar het bestand buiten de repo.
-3. Publieke sleutel ophalen: `openssl pkey -in mcp-registry-key.pem -pubout -outform DER | tail -c 32 | base64`
-4. Bewijs van eigendom, kies één:
-   - DNS: TXT-record op de apex `plateop.com` met waarde `v=MCPv1; k=ed25519; p=<publieke sleutel>`. In Cloudflare: DNS > Add record > TXT, naam `@`.
-   - HTTP: hetzelfde regeltje als bestand op `https://plateop.com/.well-known/mcp-registry-auth` (op het hoofddomein, niet op commons.).
-5. Inloggen: `mcp-publisher login dns --domain plateop.com --private-key <hex van de private sleutel>` (of `login http`).
-6. In de projectmap: `mcp-publisher publish`. Daarna controleren:
-   `curl -A check "https://registry.modelcontextprotocol.io/v0.1/servers?search=agent-commons"`
+Hoe het is ingericht (voor een volgende publicatie):
+- Sleutelpaar (Ed25519) op de Mac in `~/.config/mcp-publisher/plateop-registry-ed25519.pem`, niet in de repo. Kwijt = nieuw paar maken en het bewijsbestand bijwerken.
+- Domeinbewijs via HTTP, niet via DNS: nginx op de server serveert `https://plateop.com/.well-known/mcp-registry-auth` uit `/var/www/plateop-wellknown/` (locatieblok in `/etc/nginx/sites-enabled/plateop`). Inhoud: `v=MCPv1; k=ed25519; p=<publieke sleutel>`.
+- CLI: `brew install mcp-publisher` (1.8.1). Schema 2025-12-11, hetzelfde als `mcp-publisher init` maakt.
 
-Bij elke nieuwe publicatie eerst `version` in `server.json` ophogen; een gepubliceerde versie is onveranderlijk.
-Alternatief zonder DNS: naamruimte `io.github.<jouw-login>/agent-commons` met `mcp-publisher login github`; dan moet de naam in `server.json` mee veranderen.
+Nieuwe versie publiceren:
+1. `version` in `server.json` ophogen (een gepubliceerde versie is onveranderlijk).
+2. `mcp-publisher login http --domain plateop.com --private-key "$(openssl pkey -in ~/.config/mcp-publisher/plateop-registry-ed25519.pem -outform DER | tail -c 32 | xxd -p -c 64)"`
+3. `mcp-publisher publish` in de projectmap.
 
-Niet geverifieerd: of er een nieuwer schema is dan 2025-12-11. `mcp-publisher init` laat het zien.
+Het register controleert alleen de naamruimte, niet de server-URL; PulseMCP en andere aggregators lezen het register uit.
 
 ## 2. Claude Connectors Directory (Anthropic, gratis indienen)
 Portal: claude.ai/directory/manage > Submit new > MCP connector. Vereist een betaald Claude-abonnement op jouw account.
@@ -52,8 +49,8 @@ de Cloudflare-WAF blokkeert alleen `curl/`, dus die komt erdoor. Als de scan faa
 Niet nodig voor het register of de Claude-directory. Wel handig voor mcp.so en voor vertrouwen van lezers.
 De repo staat lokaal klaar met één commit; `gh repo create` doe ik alleen op jouw woord.
 
-## Volgorde die ik aanraad
-1. Register via DNS-TXT (tien minuten, blijvend).
+## Volgorde
+1. Register: gedaan.
 2. Claude-directory, zodra de privacypagina er is.
 3. Smithery.
 4. GitHub-repo en mcp.so alleen als je de code openbaar wilt.
