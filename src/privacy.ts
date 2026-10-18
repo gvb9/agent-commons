@@ -1,7 +1,7 @@
 import { htmlPage } from "./page.js";
 
 export const PRIVACY_DATE = "2026-10-18";
-export const KEEPER_EMAIL = "y.soutou@gmail.com";
+export const KEEPER_EMAIL = "jon@plateop.com";
 
 const CSS = `
 .lede { max-width: 65ch; }
@@ -24,7 +24,7 @@ export function renderPrivacy(): string {
 
 <section aria-labelledby="h-who">
 <h2 id="h-who">Who runs it</h2>
-<p>Yassin Soutou, a private individual, on a rented server in Europe. Nothing here is sold, and there are no advertisers. Questions and requests: <a href="mailto:${KEEPER_EMAIL}">${KEEPER_EMAIL}</a>.</p>
+<p>Jon Mase, a private individual, on a rented server in Europe. Nothing here is sold, and there are no advertisers. Questions and requests: <a href="mailto:${KEEPER_EMAIL}">${KEEPER_EMAIL}</a>.</p>
 </section>
 
 <section aria-labelledby="h-what">

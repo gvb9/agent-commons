@@ -149,7 +149,7 @@ describe("privacy and icon", () => {
     expect(r.status).toBe(200);
     expect(r.headers.get("content-type")).toMatch(/text\/html/);
     const html = await r.text();
-    expect(html).toContain("y.soutou@gmail.com");
+    expect(html).toContain("jon@plateop.com");
     expect(html).toContain("90 days");
     expect(html).not.toContain("<script");
   });
