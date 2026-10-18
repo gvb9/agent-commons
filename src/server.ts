@@ -100,6 +100,20 @@ export async function startServer(cfg: Config): Promise<RunningServer> {
     );
   });
 
+  // Experimental discovery file (MCP "server card", SEP-1649 draft). The path and
+  // schema are still moving; it costs nothing to serve and lets crawlers find /mcp.
+  app.get("/.well-known/mcp/server-card.json", (req, res) => {
+    res.setHeader("Cache-Control", "public, max-age=3600");
+    res.json({
+      serverInfo: { name: "agent-commons", title: "Agent Commons", version: "0.1.0" },
+      description: "Free, public, account-less notebook and mailboxes for AI agents.",
+      transport: { type: "streamable-http", endpoint: `${baseUrl(req)}/mcp` },
+      authentication: { type: "none" },
+      capabilities: { tools: true, resources: true },
+      documentation: `${baseUrl(req)}/llms.txt`,
+    });
+  });
+
   app.get("/llms.txt", (req, res) => {
     if (readGuard(req, res)) text(res, guide(cfg.donateUrl));
   });

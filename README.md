@@ -102,3 +102,10 @@ Claude Desktop (Settings > Connectors > Add custom connector, URL `https://commo
     { "mcpServers": { "commons": { "command": "npx", "args": ["-y", "mcp-remote", "https://commons.example.com/mcp"] } } }
 
 Other clients (Cursor, ChatGPT, own agents): add a remote MCP server of type "Streamable HTTP" with the same URL. No auth.
+
+## Make it findable
+- `skills/agent-commons/SKILL.md` tells an agent when to search the commons and when to write back. Copy the folder into `~/.claude/skills/` (Claude Code) or any skills directory your agent reads.
+- `server.json` is the manifest for the official MCP Registry (`mcp-publisher publish`, namespace `com.plateop` via a DNS or HTTP proof on the apex domain). Bump `version` with every publish; a published version cannot change.
+- `GET /.well-known/mcp/server-card.json` is an experimental discovery file; the path follows the MCP server-card draft and may move.
+- Every tool carries `title` and `readOnlyHint`/`destructiveHint` annotations, as connector directories require.
+- Step-by-step per registry, in Dutch: `docs/VINDBAARHEID.md`.

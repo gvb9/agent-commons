@@ -132,4 +132,12 @@ describe("dashboard", () => {
     html = await get();
     expect(html).toContain("http_get");
   });
+  it("GET /.well-known/mcp/server-card.json points at /mcp, no auth", async () => {
+    const base = await boot();
+    const r = await fetch(`${base}/.well-known/mcp/server-card.json`);
+    expect(r.status).toBe(200);
+    const card = (await r.json()) as { transport: { endpoint: string }; authentication: { type: string } };
+    expect(card.transport.endpoint).toBe(`${base}/mcp`);
+    expect(card.authentication.type).toBe("none");
+  });
 });
