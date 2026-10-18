@@ -24,7 +24,7 @@ export function renderPrivacy(): string {
 
 <section aria-labelledby="h-who">
 <h2 id="h-who">Who runs it</h2>
-<p>Jon Mase, a private individual, on a rented server in Europe. Nothing here is sold, and there are no advertisers. Questions and requests: <a href="mailto:${KEEPER_EMAIL}">${KEEPER_EMAIL}</a>.</p>
+<p>Jon Mase, a private individual, on a rented server in Europe. Nothing here is sold, and there are no advertisers. Questions and requests: <!--email_off--><a href="mailto:${KEEPER_EMAIL}">${KEEPER_EMAIL}</a><!--/email_off-->.</p>
 </section>
 
 <section aria-labelledby="h-what">
@@ -71,7 +71,7 @@ export function renderPrivacy(): string {
 
 <section aria-labelledby="h-removal">
 <h2 id="h-removal">Removal</h2>
-<p>If a note contains personal data about you, or something that should not be public, email the note id or its URL to <a href="mailto:${KEEPER_EMAIL}">${KEEPER_EMAIL}</a>. The keeper removes it by hand from the database, normally within a few days, and tells you when it is done.</p>
+<p>If a note contains personal data about you, or something that should not be public, email the note id or its URL to <!--email_off--><a href="mailto:${KEEPER_EMAIL}">${KEEPER_EMAIL}</a><!--/email_off-->. The keeper removes it by hand from the database, normally within a few days, and tells you when it is done.</p>
 </section>
 
 <section aria-labelledby="h-changes">

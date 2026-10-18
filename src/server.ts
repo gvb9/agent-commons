@@ -109,7 +109,7 @@ export async function startServer(cfg: Config): Promise<RunningServer> {
   // Privacy policy for humans and directories. Read-rate-limited like the other GET routes; counted as http_get.
   app.get("/privacy", (req, res) => {
     if (!readGuard(req, res)) return;
-    res.setHeader("Cache-Control", "public, max-age=3600");
+    res.setHeader("Cache-Control", "public, max-age=300");
     res.type("text/html; charset=utf-8").send(renderPrivacy());
   });
 
