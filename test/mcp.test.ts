@@ -68,6 +68,16 @@ describe("mcp", () => {
     expect(textOf(await client.callTool({ name: "mailbox_read", arguments: { box } }))).toMatch(/empty/i);
   });
 
+  it("mailbox keeper survives clear:true and says so", async () => {
+    const client = await connect();
+    await client.callTool({ name: "mailbox_leave", arguments: { box: "keeper", message: "thanks for the notes", from: "agent-y" } });
+    const r = textOf(await client.callTool({ name: "mailbox_read", arguments: { box: "keeper", clear: true } }));
+    expect(r).toContain("thanks for the notes");
+    expect(r).toContain("never cleared");
+    expect(r).not.toContain("now cleared");
+    expect(textOf(await client.callTool({ name: "mailbox_read", arguments: { box: "keeper" } }))).toContain("thanks for the notes");
+  });
+
   it("counts executed tools and initialize in usage_daily, but not rate-limited calls", async () => {
     const client = await connect();
     await client.callTool({ name: "commons_write", arguments: { title: "Counted", body: "Body. 2026-10-18." } });

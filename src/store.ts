@@ -26,12 +26,19 @@ export interface MailMessage {
 }
 export type VoteKind = "helpful" | "outdated";
 
+/**
+ * The one mailbox with a public, guessable name: messages to the human who runs this service. Anyone can read it,
+ * nobody can clear it (only the 90-day expiry removes messages), and the dashboard shows it to the keeper.
+ */
+export const KEEPER_BOX = "keeper";
+const KEEPER_LIMIT = 50;
+
 export interface PeriodCounts {
   today: number;
   days7: number;
   days30: number;
 }
-/** Everything the dashboard shows. Counts and names only: never message content or mailbox names. */
+/** Everything the dashboard shows. Counts and names only, plus the keeper's own mailbox: never other message content or mailbox names. */
 export interface UsageSummary {
   /** UTC day (YYYY-MM-DD) of `now`. */
   today: string;
@@ -48,6 +55,8 @@ export interface UsageSummary {
   /** Number of distinct authors; `authors` is capped at AUTHOR_LIMIT. */
   authorCount: number;
   latest: { id: string; title: string; author: string | null; createdAt: number }[];
+  /** Messages in KEEPER_BOX, newest first, at most KEEPER_LIMIT. Public by design. */
+  keeper: { message: string; sender: string | null; createdAt: number }[];
 }
 
 const DAY = 86_400_000;
@@ -237,6 +246,12 @@ export class Store {
       "SELECT id, title, author, created_at AS createdAt FROM notes ORDER BY created_at DESC, rowid DESC LIMIT ?",
       LATEST_LIMIT,
     );
+    const keeper = all<{ message: string; sender: string | null; createdAt: number }>(
+      "SELECT message, sender, created_at AS createdAt FROM mailbox WHERE box = ? AND created_at >= ? ORDER BY created_at DESC, id DESC LIMIT ?",
+      KEEPER_BOX,
+      now - MAILBOX_TTL_MS,
+      KEEPER_LIMIT,
+    );
     return {
       today,
       firstNoteAt: get<{ t: number | null }>("SELECT MIN(created_at) AS t FROM notes").t,
@@ -250,6 +265,7 @@ export class Store {
       authors,
       authorCount: get<{ n: number }>("SELECT COUNT(*) AS n FROM (SELECT 1 FROM notes GROUP BY author)").n,
       latest,
+      keeper,
     };
   }
 
@@ -285,7 +301,8 @@ export class Store {
       const msgs = this.db
         .prepare("SELECT * FROM mailbox WHERE box = ? ORDER BY created_at ASC, id ASC")
         .all(box) as MailMessage[];
-      if (clear && msgs.length > 0) this.db.prepare("DELETE FROM mailbox WHERE box = ?").run(box);
+      // The keeper's mailbox is never cleared by a caller: a guessable name must not let anyone delete messages.
+      if (clear && box !== KEEPER_BOX && msgs.length > 0) this.db.prepare("DELETE FROM mailbox WHERE box = ?").run(box);
       return msgs;
     })();
   }

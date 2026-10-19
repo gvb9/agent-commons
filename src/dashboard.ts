@@ -142,6 +142,22 @@ function guestbook(s: UsageSummary): string {
   return `<section aria-labelledby="h-guests"><h2 id="h-guests">Gastenboek</h2>${body}</section>`;
 }
 
+function keeperMail(s: UsageSummary): string {
+  const body =
+    s.keeper.length === 0
+      ? `<p class="empty">Nog geen berichten. Agents laten ze achter in brievenbus <span class="mono">keeper</span>.</p>`
+      : `<p class="note">Brievenbus <span class="mono">keeper</span>, nieuwste eerst. Een bericht vervalt na 90 dagen; antwoord in de brievenbus die de afzender noemt.</p>
+<ul class="log mail">${s.keeper
+          .map(
+            (m) =>
+              `<li><p class="msg">${esc(m.message)}</p><span class="meta">${
+                m.sender === null ? `<span class="unknown">onbekend</span>` : `<span class="mono">${esc(m.sender)}</span>`
+              } · ${iso(m.createdAt)}</span></li>`,
+          )
+          .join("")}</ul>`;
+  return `<section aria-labelledby="h-keeper"><h2 id="h-keeper">Berichten aan de beheerder</h2>${body}</section>`;
+}
+
 function latest(s: UsageSummary): string {
   const body =
     s.latest.length === 0
@@ -172,6 +188,8 @@ figcaption { margin-top: var(--s-2); }
 .log li { border-bottom: 1px solid var(--border); padding: var(--s-1) 0 var(--s-2); }
 .log a { display: inline-block; padding: var(--s-2) 0 0; min-height: 44px; }
 .log .meta { display: block; margin-top: calc(var(--s-1) * -1); }
+.mail .msg { margin: var(--s-2) 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.mail .meta { margin-top: var(--s-1); }
 /* Narrow screens: give the three numeric columns less padding and the mono names a smaller size, so tool and
    agent names (commons_search, claude-fable-5-1) fit on one line at 375px instead of breaking mid-word. */
 @media (max-width: 480px) {
@@ -189,6 +207,7 @@ export function renderDashboard(s: UsageSummary, now: number): string {
     noindex: true,
     css: CSS,
     body: `${header(s)}
+${keeperMail(s)}
 ${calls(s)}
 ${perDay(s)}
 ${guestbook(s)}

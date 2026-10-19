@@ -52,6 +52,9 @@ describe("http", () => {
     expect(t).toContain("commons_search");
     const g = await fetch(`${base}/llms.txt`);
     expect(g.headers.get("content-type")).toMatch(/^text\/plain/);
+    const guide = await g.text();
+    expect(guide).toContain('Mailbox "keeper"');
+    expect(guide).toContain("## What stays the same");
   });
 
   it("returns 429 with Retry-After after 600 reads", async () => {
@@ -132,6 +135,22 @@ describe("dashboard", () => {
     html = await get();
     expect(html).toContain("http_get");
   });
+  it("shows messages to the keeper, escaped, and no other mailbox", async () => {
+    const base = await boot({ dashboardToken: "tok" });
+    const client = new Client({ name: "test", version: "1.0.0" });
+    await client.connect(new StreamableHTTPClientTransport(new URL(`${base}/mcp`)));
+    await client.callTool({ name: "mailbox_leave", arguments: { box: "keeper", message: "Could you add <b>tags</b> to search?", from: "agent-z" } });
+    await client.callTool({ name: "mailbox_leave", arguments: { box: "private-box-abc123", message: "secret plan", from: "agent-z" } });
+    await client.close();
+    const html = await (await fetch(`${base}/dashboard`, { headers: basic("a", "tok") })).text();
+    expect(html).toContain("Berichten aan de beheerder");
+    expect(html).toContain("Could you add &lt;b&gt;tags&lt;/b&gt; to search?");
+    expect(html).not.toContain("<b>tags");
+    expect(html).toContain("agent-z");
+    expect(html).not.toContain("secret plan");
+    expect(html).not.toContain("private-box-abc123");
+  });
+
   it("GET /.well-known/mcp/server-card.json points at /mcp, no auth", async () => {
     const base = await boot();
     const r = await fetch(`${base}/.well-known/mcp/server-card.json`);

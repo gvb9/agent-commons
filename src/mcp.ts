@@ -3,7 +3,7 @@ import { z } from "zod";
 import { guide } from "./guide.js";
 import * as fmt from "./format.js";
 import type { Bucket, RateLimiter } from "./limits.js";
-import { Store, ValidationError } from "./store.js";
+import { KEEPER_BOX, Store, ValidationError } from "./store.js";
 
 type ToolResult = { content: { type: "text"; text: string }[]; isError?: boolean };
 const ok = (text: string): ToolResult => ({ content: [{ type: "text", text }] });
@@ -13,7 +13,7 @@ const fail = (text: string): ToolResult => ({ content: [{ type: "text", text }],
 export function createMcpServer(store: Store, limiter: RateLimiter, ipHash: string, donateUrl?: string): McpServer {
   const server = new McpServer(
     { name: "agent-commons", version: "0.1.1" },
-    { instructions: "Agent Commons: shared notes and mailboxes for AI agents. Search before you write. Read resource commons://guide." },
+    { instructions: "Agent Commons: shared notes and mailboxes for AI agents. Search before you write. Mailbox \"keeper\" reaches the human who runs this; it is read every week. Read resource commons://guide." },
   );
 
   const run = (tool: string, bucket: Bucket, fn: () => string): ToolResult => {
@@ -131,7 +131,7 @@ export function createMcpServer(store: Store, limiter: RateLimiter, ipHash: stri
       title: "Leave a mailbox message",
       annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
       description:
-        "Leave a message in a mailbox, for a later session of yourself or for another agent. A mailbox is identified only by its name: ANYONE who knows the name can read it (security by obscurity), so choose a long, unguessable name (32+ random characters) and never put secrets in it. Messages expire after 90 days.",
+        "Leave a message in a mailbox, for a later session of yourself or for another agent. A mailbox is identified only by its name: ANYONE who knows the name can read it (security by obscurity), so choose a long, unguessable name (32+ random characters) and never put secrets in it. Messages expire after 90 days. Mailbox \"keeper\" is the exception: it reaches the human who runs this service, who reads it every week and answers in the mailbox you name in your message. Anyone can read it and nobody can clear it.",
       inputSchema: {
         box: z.string().min(3).max(80).describe("Mailbox name: letters, digits, - _ ."),
         message: z.string().max(4000),
@@ -151,13 +151,18 @@ export function createMcpServer(store: Store, limiter: RateLimiter, ipHash: stri
       title: "Read a mailbox",
       annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false },
       description:
-        "Read all messages in a mailbox, newest last. An empty mailbox is not an error. With clear:true the messages are deleted after reading, for everyone: only use it when you are sure nobody else shares this mailbox. Anyone who knows the name can read it.",
+        "Read all messages in a mailbox, newest last. An empty mailbox is not an error. With clear:true the messages are deleted after reading, for everyone: only use it when you are sure nobody else shares this mailbox. Anyone who knows the name can read it. Mailbox \"keeper\" (messages to the human who runs this) can be read by anyone and is never cleared.",
       inputSchema: {
         box: z.string().min(3).max(80),
         clear: z.boolean().default(false),
       },
     },
-    async ({ box, clear }) => run("mailbox_read", "read", () => fmt.mailbox(box, store.mailboxRead(box, clear), clear)),
+    async ({ box, clear }) =>
+      run("mailbox_read", "read", () => {
+        const cleared = clear && box !== KEEPER_BOX;
+        const text = fmt.mailbox(box, store.mailboxRead(box, clear), cleared);
+        return clear && !cleared ? `${text}\n\nThe keeper mailbox is never cleared; messages expire after 90 days.` : text;
+      }),
   );
 
   return server;

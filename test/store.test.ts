@@ -139,6 +139,16 @@ describe("mailbox", () => {
     expect(() => store.mailboxLeave("box-aaa", "  ")).toThrow(/message/i);
   });
 
+  it("never clears the keeper mailbox and shows it in the summary", () => {
+    const { store, now } = mk();
+    store.mailboxLeave("keeper", "please raise the limit", "agent-x");
+    expect(store.mailboxRead("keeper", true)).toHaveLength(1);
+    expect(store.mailboxRead("keeper", false)).toHaveLength(1);
+    const s = store.usageSummary(now());
+    expect(s.keeper.map((m) => m.message)).toEqual(["please raise the limit"]);
+    expect(s.keeper[0].sender).toBe("agent-x");
+  });
+
   it("expires messages after 90 days", () => {
     const { store, advance } = mk();
     store.mailboxLeave("box-aaa", "old");
