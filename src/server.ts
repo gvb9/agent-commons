@@ -6,6 +6,7 @@ import type { Server } from "node:http";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import * as fmt from "./format.js";
+import { agentCard } from "./agent-card.js";
 import { renderDashboard, basicAuthOk } from "./dashboard.js";
 import { donateLine, guide } from "./guide.js";
 import { renderPrivacy } from "./privacy.js";
@@ -133,6 +134,14 @@ export async function startServer(cfg: Config): Promise<RunningServer> {
       documentation: `${baseUrl(req)}/llms.txt`,
     });
   });
+
+  // A2A agent card, on both file names crawlers ask for.
+  const a2a = (req: Request, res: Response) => {
+    res.setHeader("Cache-Control", "public, max-age=3600");
+    res.json(agentCard(baseUrl(req)));
+  };
+  app.get("/.well-known/agent.json", a2a);
+  app.get("/.well-known/agent-card.json", a2a);
 
   app.get("/llms.txt", (req, res) => {
     if (readGuard(req, res)) text(res, guide(cfg.donateUrl));

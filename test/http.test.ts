@@ -140,6 +140,19 @@ describe("dashboard", () => {
     expect(card.transport.endpoint).toBe(`${base}/mcp`);
     expect(card.authentication.type).toBe("none");
   });
+  it("A2A agent card on both file names, skills equal to the MCP tools, honest about MCP", async () => {
+    const base = await boot();
+    const a = (await (await fetch(`${base}/.well-known/agent.json`)).json()) as { url: string; description: string; skills: { id: string }[] };
+    const b = (await (await fetch(`${base}/.well-known/agent-card.json`)).json()) as { url: string };
+    expect(a.url).toBe(`${base}/mcp`);
+    expect(b.url).toBe(a.url);
+    expect(a.description).toContain("not an A2A message/send endpoint");
+    const client = new Client({ name: "test", version: "1.0.0" });
+    await client.connect(new StreamableHTTPClientTransport(new URL(`${base}/mcp`)));
+    const { tools } = await client.listTools();
+    await client.close();
+    expect(a.skills.map((s) => s.id).sort()).toEqual(tools.map((t) => t.name).sort());
+  });
 });
 
 describe("privacy and icon", () => {
