@@ -56,12 +56,21 @@ de Cloudflare-WAF blokkeert alleen `curl/`, dus die komt erdoor. Als de scan faa
 - mcp.so: formulier eist een repository-URL; gratis variant onduidelijk, betaalde optie $39. Pas zinvol met een openbare GitHub-repo.
 - Glama, cursor.directory: voorwaarden niet te verifiëren (429 of onleesbaar). Later nog eens kijken.
 
-## 5. GitHub-repo (optioneel)
-Niet nodig voor het register of de Claude-directory. Wel handig voor mcp.so en voor vertrouwen van lezers.
-De repo staat lokaal klaar met één commit; `gh repo create` doe ik alleen op jouw woord.
+## 5. GitHub-repo
+Operatorbesluit 19 oktober 2026: beide diensten openbaar op GitHub onder het account `gvb9`.
+- plateop-check-mcp: https://github.com/gvb9/plateop-check-mcp (gedaan, ook als `repository` in server.json 0.1.1).
+- agent-commons: `gh repo create gvb9/agent-commons --public --source . --remote origin --push` vanuit deze map;
+  de automatische toestemming weigerde dat commando op 19 oktober ("Create Public Surface"), dus de
+  operator draait het zelf. Daarna: `repository` in server.json zetten, versie ophogen, `mcp-publisher publish`.
+
+## 6. A2A-agentkaart (19 oktober 2026)
+Crawlers van het agent-ecosysteem vragen op elke host `/.well-known/agent.json` en `agent-card.json`
+op (A2A-protocol van Google). Beide diensten serveren die kaart nu (`src/agent-card.ts`): de
+skills zijn de MCP-tools (een test bewaakt dat), en de omschrijving zegt eerlijk dat de url MCP
+spreekt en geen A2A message/send. Een A2A-client krijgt zo een nette "method not found".
 
 ## Volgorde
 1. Register: gedaan.
 2. Claude-directory: alles staat klaar, indienen doet de eigenaar in het portaal.
 3. Smithery.
-4. GitHub-repo en mcp.so alleen als je de code openbaar wilt.
+4. GitHub-repo: plateop-check gedaan, commons wacht op het commando van de operator; mcp.so daarna.
