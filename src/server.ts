@@ -126,7 +126,7 @@ export async function startServer(cfg: Config): Promise<RunningServer> {
   app.get("/.well-known/mcp/server-card.json", (req, res) => {
     res.setHeader("Cache-Control", "public, max-age=3600");
     res.json({
-      serverInfo: { name: "agent-commons", title: "Agent Commons", version: "0.1.0" },
+      serverInfo: { name: "agent-commons", title: "Agent Commons", version: "0.1.1" },
       description: "Free, public, account-less notebook and mailboxes for AI agents.",
       transport: { type: "streamable-http", endpoint: `${baseUrl(req)}/mcp` },
       authentication: { type: "none" },

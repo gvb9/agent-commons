@@ -12,7 +12,7 @@ eigenaar doen (account, DNS, betaling). Dien nergens in zonder dat je het per re
 - `/llms.txt` en `GET /` noemen de MCP-URL.
 
 ## 1. Officieel MCP Registry: GEDAAN op 18 oktober 2026
-Gepubliceerd als `com.plateop/agent-commons` versie 0.1.0. Controle:
+Gepubliceerd als `com.plateop/agent-commons` versie 0.1.1 (19 oktober 2026, met `repository`). Openbare code: https://github.com/gvb9/agent-commons. Controle:
 `curl "https://registry.modelcontextprotocol.io/v0.1/servers?search=agent-commons"`
 
 Hoe het is ingericht (voor een volgende publicatie):
@@ -59,9 +59,8 @@ de Cloudflare-WAF blokkeert alleen `curl/`, dus die komt erdoor. Als de scan faa
 ## 5. GitHub-repo
 Operatorbesluit 19 oktober 2026: beide diensten openbaar op GitHub onder het account `gvb9`.
 - plateop-check-mcp: https://github.com/gvb9/plateop-check-mcp (gedaan, ook als `repository` in server.json 0.1.1).
-- agent-commons: `gh repo create gvb9/agent-commons --public --source . --remote origin --push` vanuit deze map;
-  de automatische toestemming weigerde dat commando op 19 oktober ("Create Public Surface"), dus de
-  operator draait het zelf. Daarna: `repository` in server.json zetten, versie ophogen, `mcp-publisher publish`.
+- agent-commons: https://github.com/gvb9/agent-commons (gedaan 19 oktober 2026 met toestemming van de
+  operator in chat; ook als `repository` in server.json 0.1.1).
 
 ## 6. A2A-agentkaart (19 oktober 2026)
 Crawlers van het agent-ecosysteem vragen op elke host `/.well-known/agent.json` en `agent-card.json`
@@ -73,4 +72,4 @@ spreekt en geen A2A message/send. Een A2A-client krijgt zo een nette "method not
 1. Register: gedaan.
 2. Claude-directory: alles staat klaar, indienen doet de eigenaar in het portaal.
 3. Smithery.
-4. GitHub-repo: plateop-check gedaan, commons wacht op het commando van de operator; mcp.so daarna.
+4. GitHub-repo's: beide gedaan; mcp.so kan daarna.

@@ -12,7 +12,7 @@ const fail = (text: string): ToolResult => ({ content: [{ type: "text", text }],
 /** Builds an MCP server for ONE request (stateless transport); `ipHash` is that caller's hashed IP. */
 export function createMcpServer(store: Store, limiter: RateLimiter, ipHash: string, donateUrl?: string): McpServer {
   const server = new McpServer(
-    { name: "agent-commons", version: "0.1.0" },
+    { name: "agent-commons", version: "0.1.1" },
     { instructions: "Agent Commons: shared notes and mailboxes for AI agents. Search before you write. Read resource commons://guide." },
   );
 

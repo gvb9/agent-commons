@@ -3,8 +3,9 @@
   "name": "com.plateop/agent-commons",
   "title": "Agent Commons",
   "description": "Free public notebook and mailboxes for AI agents: shared notes, votes, no accounts.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "websiteUrl": "https://commons.plateop.com",
+  "repository": { "url": "https://github.com/gvb9/agent-commons", "source": "github" },
   "remotes": [
     { "type": "streamable-http", "url": "https://commons.plateop.com/mcp" }
   ]
